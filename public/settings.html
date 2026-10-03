@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚙️ الإعدادات | Quiz Master</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="theme.css">
+  <script type="module" src="theme.js"></script>
+  <script type="module" src="auth-guard.js"></script>
+</head>
+<body>
+
+  <canvas id="particles-canvas"></canvas>
+  <div id="bg-layer"></div>
+  <div id="bg-overlay"></div>
+
+  <section class="screen active">
+    <h1>⚙️ الإعدادات</h1>
+    <p>خصّص اللعبة على مزاجك</p>
+
+    <div class="user-bar">
+      <span>👤 <b id="user-name">-</b></span>
+      <div class="user-actions">
+        <a href="index.html" class="btn-ghost btn-small">🏠 الرئيسية</a>
+        <button id="logout-btn" class="btn-ghost btn-small">خروج</button>
+      </div>
+    </div>
+
+    <!-- 🎨 الثيمات -->
+    <h2 class="section-title">🎨 اختر الثيم</h2>
+    <div id="themes-grid" class="themes-grid">
+      <!-- JavaScript هيملا -->
+    </div>
+
+    <!-- 🔊 الصوت -->
+    <h2 class="section-title">🔊 الصوت</h2>
+    <div class="setting-row">
+      <span>مؤثرات صوتية</span>
+      <button id="sound-toggle-2" class="toggle-btn">🔊</button>
+    </div>
+
+    <!-- معلومات -->
+    <div class="info-box">
+      <p>💡 إعداداتك بتُحفظ تلقائياً في متصفحك</p>
+    </div>
+
+    <div class="actions">
+      <a href="index.html" class="btn-link">🏠 الرئيسية</a>
+      <a href="profile.html" class="btn-link">👤 بروفايلي</a>
+    </div>
+  </section>
+
+  <script type="module">
+    import { watchAuth, logout } from './auth.js';
+    import { THEMES, applyTheme, getCurrentTheme } from './theme.js';
+
+    // ═══════════════════════════════════════
+    //   عرض الثيمات
+    // ═══════════════════════════════════════
+    function renderThemes() {
+      const grid = document.getElementById('themes-grid');
+      const current = getCurrentTheme();
+
+      grid.innerHTML = '';
+      Object.entries(THEMES).forEach(([key, theme]) => {
+        const card = document.createElement('button');
+        card.className = 'theme-card' + (key === current ? ' active' : '');
+        card.dataset.theme = key;
+
+        // نعرض معاينة الألوان
+        card.innerHTML = `
+          <div class="theme-preview">
+            <span style="background:${theme.vars['--accent']}"></span>
+            <span style="background:${theme.vars['--accent2']}"></span>
+            <span style="background:${theme.vars['--bg']}"></span>
+          </div>
+          <div class="theme-icon">${theme.icon}</div>
+          <div class="theme-name">${theme.name}</div>
+          <div class="theme-desc">${theme.desc}</div>
+        `;
+
+        card.addEventListener('click', () => {
+          applyTheme(key);
+          // نحدّث الـ active
+          document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    // ═══════════════════════════════════════
+    //   زر الصوت
+    // ═══════════════════════════════════════
+    function setupSoundToggle() {
+      const btn = document.getElementById('sound-toggle-2');
+      const isEnabled = localStorage.getItem('soundEnabled') !== 'false';
+      btn.textContent = isEnabled ? '🔊' : '🔇';
+
+      btn.addEventListener('click', () => {
+        const current = localStorage.getItem('soundEnabled') !== 'false';
+        const next = !current;
+        localStorage.setItem('soundEnabled', next);
+        btn.textContent = next ? '🔊' : '🔇';
+      });
+    }
+
+    // ═══════════════════════════════════════
+    //   تشغيل
+    // ═══════════════════════════════════════
+    renderThemes();
+    setupSoundToggle();
+
+    watchAuth(user => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      document.getElementById('user-name').textContent =
+        user.displayName || user.email;
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      if (confirm('متأكد إنك عايز تسجل خروج؟')) {
+        await logout();
+      }
+    });
+  </script>
+</body>
+</html>

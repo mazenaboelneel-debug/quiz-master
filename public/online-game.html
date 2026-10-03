@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎮 اللعب أونلاين | Quiz Master</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="theme.css">
+  <script type="module" src="theme.js"></script>
+  <script type="module" src="auth-guard.js"></script>
+</head>
+<body>
+
+  <canvas id="particles-canvas"></canvas>
+  <canvas id="confetti-canvas"></canvas>
+  <div id="bg-layer"></div>
+  <div id="bg-overlay"></div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ═══════════ شاشة اللعب ═══════════ -->
+  <section id="screen-online-quiz" class="screen active">
+    <button id="quit-game" class="quit-btn" title="خروج">✕</button>
+
+    <div class="hud">
+      <span>👤 <b id="my-name">-</b></span>
+      <span>🎯 النقاط: <b id="my-score">0</b></span>
+      <span>📊 <b id="progress">1/5</b></span>
+    </div>
+
+    <!-- 🆕 شريط اللاعبين -->
+    <div id="players-bar" class="players-bar">
+      <!-- يتولّد ديناميكياً -->
+    </div>
+
+    <!-- شريط المؤقت -->
+    <div id="timer-bar-wrap">
+      <div id="timer-bar"></div>
+    </div>
+    <div id="timer-text">20</div>
+
+    <!-- السؤال -->
+    <h2 id="question-text">جاري التحميل...</h2>
+
+    <!-- الأجوبة -->
+    <div id="answers"></div>
+
+    <!-- Feedback -->
+    <div id="feedback"></div>
+
+    <!-- حالة الانتظار -->
+    <div id="waiting-message" class="waiting-message hidden">
+      ⏳ في انتظار باقي اللاعبين...
+    </div>
+  </section>
+
+  <!-- ═══════════ شاشة النتيجة ═══════════ -->
+  <section id="screen-online-end" class="screen">
+    <h1>🏁 النتيجة النهائية</h1>
+    <div id="online-results"></div>
+    <p id="online-final-message"></p>
+
+    <div class="actions">
+      <button id="back-home">🏠 الرئيسية</button>
+      <button id="play-again">🔄 العب تاني</button>
+    </div>
+  </section>
+
+  <!-- ⛔ Modal: اللاعب خرج -->
+  <div id="player-left-modal" class="error-modal hidden">
+    <div class="error-box">
+      <div class="error-icon">🚪</div>
+      <h2 id="player-left-title">اللاعب خرج</h2>
+      <p id="player-left-message">الخصم خرج من اللعبة.</p>
+      <button id="player-left-back">🏠 رجوع للرئيسية</button>
+    </div>
+  </div>
+
+  <div id="loading" class="loading hidden">
+    <div class="spinner"></div>
+    <p id="loading-text">⏳ جاري التحميل...</p>
+  </div>
+
+  <script type="module" src="online-game.js"></script>
+</body>
+</html>

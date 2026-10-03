@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>👤 بروفايلي | Quiz Master</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="auth-guard.js"></script>
+  <link rel="stylesheet" href="theme.css">
+<script type="module" src="theme.js"></script>
+<link rel="stylesheet" href="theme.css">
+<script type="module" src="theme.js"></script>
+</head>
+<body>
+
+  <canvas id="particles-canvas"></canvas>
+  <div id="bg-layer"></div>
+  <div id="bg-overlay"></div>
+
+  <section class="screen active">
+    <h1>👤 بروفايلي</h1>
+
+    <div class="user-bar">
+      <span>👤 <b id="user-name">-</b></span>
+      <div class="user-actions">
+         <a href="settings.html" class="btn-ghost btn-small">⚙️</a>
+        <a href="index.html" class="btn-ghost btn-small">🏠 الرئيسية</a>
+        <a href="leaderboard.html" class="btn-ghost btn-small">🏆 المتصدرين</a>
+        <button id="logout-btn" class="btn-ghost btn-small">خروج</button>
+      </div>
+    </div>
+
+    <!-- ✏️ صندوق تحديث الاسم (للمستخدمين القدامى) -->
+    <div id="name-update-box" style="display:none; margin-bottom: 20px;">
+      <p style="color: var(--muted); font-size: 14px; margin-bottom: 10px;">
+        ✏️ مش لاقيين اسمك؟ اكتبه هنا وحفظه
+      </p>
+      <input type="text" id="new-name" class="name-input" placeholder="اكتب اسمك" maxlength="30">
+      <button id="save-name" class="btn-primary" style="width: 100%;">💾 حفظ الاسم</button>
+    </div>
+
+    <!-- 📊 الإحصائيات -->
+    <div id="stats-grid" class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-games">0</div>
+        <div class="stat-label">🎮 ألعاب لعبتها</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-best">0</div>
+        <div class="stat-label">🏆 أفضل نتيجة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-accuracy">0%</div>
+        <div class="stat-label">🎯 نسبة الدقة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-label">⭐ إجمالي النقاط</div>
+      </div>
+    </div>
+    <!-- 🎯 أفضل/أضعف موضوع -->
+<h2 class="section-title">🎯 تحليل المواضيع</h2>
+<div class="topic-insights" id="topic-insights">
+  <p class="empty-state">⏳ جاري التحليل...</p>
+</div>
+
+    <!-- 🏅 الإنجازات -->
+    <h2 class="section-title">🏅 الإنجازات</h2>
+    <div id="badges-grid" class="badges-grid"></div>
+
+    <!-- 📜 آخر النتائج -->
+    <h2 class="section-title">📜 آخر 10 نتائج</h2>
+    <div id="history-list" class="history-list">
+      <p class="empty-state">⏳ جاري التحميل...</p>
+    </div>
+
+    <div class="actions">
+      <a href="index.html" class="btn-link">🏠 الرئيسية</a>
+      <a href="leaderboard.html" class="btn-link">🏆 المتصدرين</a>
+    </div>
+  </section>
+
+  <script type="module">
+    // ═══════════════════════════════════════════════
+    //   Imports
+    // ═══════════════════════════════════════════════
+    import { watchAuth, getUserResults, getAllUserResults, logout, updateUserName } from './auth.js';
+    import { BADGES, checkBadges } from './badges.js';
+
+    // ═══════════════════════════════════════════════
+    //   🏅 تحميل الإنجازات
+    // ═══════════════════════════════════════════════
+    async function loadBadges() {
+      const all = await getAllUserResults();
+      const unlocked = checkBadges(all);
+      const grid = document.getElementById('badges-grid');
+      grid.innerHTML = '';
+
+      BADGES.forEach(b => {
+        const isUnlocked = unlocked.has(b.id);
+        const div = document.createElement('div');
+        div.className = 'badge-card' + (isUnlocked ? ' unlocked' : ' locked');
+        div.innerHTML = `
+          <div class="badge-icon">${b.icon}</div>
+          <div class="badge-title">${b.title}</div>
+          <div class="badge-desc">${b.desc}</div>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    // ═══════════════════════════════════════════════
+    //   📊 تحميل الإحصائيات
+    // ═══════════════════════════════════════════════
+    async function loadStats() {
+      try {
+        const all = await getAllUserResults();
+
+        if (all.length === 0) {
+          document.getElementById('stat-games').textContent = '0';
+          document.getElementById('stat-best').textContent = '0';
+          document.getElementById('stat-accuracy').textContent = '0%';
+          document.getElementById('stat-total').textContent = '0';
+          return;
+        }
+
+        const totalGames = all.length;
+        const best = Math.max(...all.map(r => r.score));
+        const totalScore = all.reduce((sum, r) => sum + r.score, 0);
+        const totalCorrect = all.reduce((sum, r) => sum + (r.correct || 0), 0);
+        const totalQuestions = all.reduce((sum, r) => sum + (r.totalQuestions || 0), 0);
+        const accuracy = totalQuestions > 0
+          ? Math.round((totalCorrect / totalQuestions) * 100)
+          : 0;
+
+        document.getElementById('stat-games').textContent = totalGames;
+        document.getElementById('stat-best').textContent = best;
+        document.getElementById('stat-accuracy').textContent = accuracy + '%';
+        document.getElementById('stat-total').textContent = totalScore;
+      } catch (err) {
+        console.error('خطأ في تحميل الإحصائيات:', err);
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    //   📜 تحميل آخر النتائج
+    // ═══════════════════════════════════════════════
+    async function loadHistory() {
+      try {
+        const results = await getUserResults(10);
+        const list = document.getElementById('history-list');
+
+        if (results.length === 0) {
+          list.innerHTML = '<p class="empty-state">😴 مفيش نتائج لسه. ابدأ أول لعبة!</p>';
+          return;
+        }
+
+        list.innerHTML = '';
+        results.forEach(r => {
+          const div = document.createElement('div');
+          div.className = 'history-item';
+
+          const date = r.createdAt?.toDate?.() || new Date();
+          const dateStr = date.toLocaleDateString('ar-EG', {
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          div.innerHTML = `
+            <div class="history-info">
+              <span class="history-topic">${r.topic || 'عام'}</span>
+              <span class="history-meta">${r.difficulty || 'متوسط'} • ${r.totalQuestions || 0} سؤال • ${dateStr}</span>
+            </div>
+            <div class="history-score">${r.score} / ${r.maxScore}</div>
+          `;
+          list.appendChild(div);
+        });
+      } catch (err) {
+        console.error('خطأ في تحميل التاريخ:', err);
+        document.getElementById('history-list').innerHTML =
+          '<p class="empty-state">⚠️ تعذّر التحميل</p>';
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    //   🔐 مراقبة حالة المستخدم
+    // ═══════════════════════════════════════════════
+    watchAuth(async user => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // 🔄 نحمّل البيانات الحديثة (بعد التسجيل بالظبط)
+      try {
+        await user.reload();
+      } catch (err) {
+        console.warn('⚠️ فشل تحديث بيانات المستخدم:', err);
+      }
+
+      // الآن displayName متاح
+      const displayName = user.displayName || '';
+      document.getElementById('user-name').textContent =
+        displayName || user.email;
+
+      // لو مفيش اسم → نظهر صندوق التحديث
+      if (!displayName) {
+        document.getElementById('name-update-box').style.display = 'block';
+      }
+
+      await loadStats();
+      await loadBadges();
+      await loadHistory();
+    });
+
+    // ═══════════════════════════════════════════════
+    //   💾 حفظ الاسم الجديد
+    // ═══════════════════════════════════════════════
+    document.getElementById('save-name').addEventListener('click', async () => {
+      const newName = document.getElementById('new-name').value.trim();
+
+      if (!newName) {
+        alert('اكتب اسمك الأول');
+        return;
+      }
+
+      const btn = document.getElementById('save-name');
+      btn.disabled = true;
+      btn.textContent = '⏳ جاري الحفظ...';
+
+      try {
+        await updateUserName(newName);
+        document.getElementById('user-name').textContent = newName;
+        document.getElementById('name-update-box').style.display = 'none';
+        alert('✅ تم حفظ اسمك بنجاح');
+      } catch (err) {
+        console.error('❌ فشل حفظ الاسم:', err);
+        alert('❌ حصل خطأ: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = '💾 حفظ الاسم';
+      }
+    });
+
+    // ═══════════════════════════════════════════════
+    //   🚪 تسجيل الخروج
+    // ═══════════════════════════════════════════════
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      if (confirm('متأكد إنك عايز تسجل خروج؟')) {
+        await logout();
+      }
+    });
+
+// ═══════════════════════════════════════════════
+//   🎯 تحليل المواضيع
+// ═══════════════════════════════════════════════
+async function loadTopicInsights() {
+  try {
+    const all = await getAllUserResults();
+    const box = document.getElementById('topic-insights');
+
+    if (all.length === 0) {
+      box.innerHTML = '<p class="empty-state">😴 مفيش بيانات كفاية لسه</p>';
+      return;
+    }
+
+    // تجميع حسب الموضوع
+    const topicsMap = {};
+    all.forEach(r => {
+      const t = r.topic || 'عام';
+      if (!topicsMap[t]) topicsMap[t] = { topic: t, correct: 0, total: 0, score: 0 };
+      topicsMap[t].correct += r.correct || 0;
+      topicsMap[t].total += r.totalQuestions || 0;
+      topicsMap[t].score += r.score || 0;
+    });
+
+    const topicsArr = Object.values(topicsMap).map(t => ({
+      ...t,
+      accuracy: t.total > 0 ? Math.round((t.correct / t.total) * 100) : 0
+    }));
+
+    // نحتاج موضوعين على الأقل
+    if (topicsArr.length < 2) {
+      box.innerHTML = '<p class="empty-state">🎯 العب مواضيع مختلفة عشان نحلل</p>';
+      return;
+    }
+
+    topicsArr.sort((a, b) => b.accuracy - a.accuracy);
+
+    const best = topicsArr[0];
+    const worst = topicsArr[topicsArr.length - 1];
+
+    box.innerHTML = `
+      <div class="insight-card best">
+        <div class="insight-icon">🏆</div>
+        <div class="insight-topic">${best.topic}</div>
+        <div class="insight-value">${best.accuracy}% دقة</div>
+      </div>
+      <div class="insight-card worst">
+        <div class="insight-icon">📚</div>
+        <div class="insight-topic">${worst.topic}</div>
+        <div class="insight-value">${worst.accuracy}% دقة</div>
+      </div>
+    `;
+  } catch (err) {
+    console.error('خطأ تحليل المواضيع:', err);
+  }
+}
+
+  </script>
+</body>
+</html>

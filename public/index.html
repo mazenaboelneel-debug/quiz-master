@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎯 Quiz Master | تحدي المعرفة</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="theme.css">
+  <script type="module" src="theme.js"></script>
+  <script type="module" src="auth-guard.js"></script>
+</head>
+<body>
+
+  <canvas id="particles-canvas"></canvas>
+  <canvas id="confetti-canvas"></canvas>
+  <div id="bg-layer"></div>
+  <div id="bg-overlay"></div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ═══════════ شاشة البداية ═══════════ -->
+  <section id="screen-home" class="screen active">
+    <h1>🎯 Quiz Master</h1>
+    <p>تحدي المعرفة — أسئلة بتوليد الذكاء الاصطناعي</p>
+
+    <div class="user-bar">
+      <span>👤 <b id="user-name">-</b></span>
+      <div class="user-actions">
+        <a href="settings.html" class="btn-ghost btn-small">⚙️</a>
+        <a href="profile.html" class="btn-ghost btn-small">👤 بروفايلي</a>
+        <a href="leaderboard.html" class="btn-ghost btn-small">🏆 المتصدرين</a>
+        <button id="logout-btn" class="btn-ghost btn-small">خروج</button>
+      </div>
+    </div>
+
+    <button id="sound-toggle" class="sound-btn" title="كتم/تشغيل الصوت">🔊</button>
+
+    <div class="mode-buttons">
+      <button class="mode-btn" data-mode="solo">
+        <span class="mode-icon">👤</span>
+        <span class="mode-title">لاعب واحد</span>
+        <span class="mode-desc">تحدَّ نفسك</span>
+      </button>
+
+      <button class="mode-btn" data-mode="duo">
+        <span class="mode-icon">👥</span>
+        <span class="mode-title">اتنين لاعبين</span>
+        <span class="mode-desc">تحدي بالتبادل</span>
+      </button>
+
+      <button class="mode-btn" data-mode="versus">
+        <span class="mode-icon">⚔️</span>
+        <span class="mode-title">تحدي مباشر</span>
+        <span class="mode-desc">نفس السؤال — مين الأسرع؟</span>
+      </button>
+
+      <button class="mode-btn" data-mode="online" id="btn-online">
+        <span class="mode-icon">🌐</span>
+        <span class="mode-title">تحدي أونلاين</span>
+        <span class="mode-desc">العب مع أصحابك (2-4)</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══════════ شاشة الإعدادات ═══════════ -->
+  <section id="screen-settings" class="screen">
+    <h1>⚙️ إعدادات اللعبة</h1>
+    <p>اختار التفاصيل قبل ما نبدأ</p>
+
+    <!-- 🎯 القسم -->
+     <div class="categories-actions">
+  <button type="button" id="select-all-cats" class="btn-ghost btn-small">تحديد الكل</button>
+  <button type="button" id="clear-all-cats" class="btn-ghost btn-small">إلغاء الكل</button>
+</div>
+
+    <div class="categories-grid" id="categories-grid">
+  <button class="category-card active" data-category="football">
+    <span class="category-check">✓</span>
+    <span class="category-icon">⚽</span>
+    <span class="category-name">كرة القدم</span>
+  </button>
+  <button class="category-card" data-category="movies">
+    <span class="category-check">✓</span>
+    <span class="category-icon">🎬</span>
+    <span class="category-name">أفلام</span>
+  </button>
+  <button class="category-card" data-category="series">
+    <span class="category-check">✓</span>
+    <span class="category-icon">📺</span>
+    <span class="category-name">مسلسلات</span>
+  </button>
+  <button class="category-card" data-category="general">
+    <span class="category-check">✓</span>
+    <span class="category-icon">🌍</span>
+    <span class="category-name">معلومات عامة</span>
+  </button>
+  <button class="category-card" data-category="science">
+    <span class="category-check">✓</span>
+    <span class="category-icon">🔬</span>
+    <span class="category-name">علوم</span>
+  </button>
+  <button class="category-card" data-category="history">
+    <span class="category-check">✓</span>
+    <span class="category-icon">📜</span>
+    <span class="category-name">تاريخ</span>
+  </button>
+  <button class="category-card" data-category="music">
+    <span class="category-check">✓</span>
+    <span class="category-icon">🎵</span>
+    <span class="category-name">موسيقى وفن</span>
+  </button>
+  <button class="category-card" data-category="tech">
+    <span class="category-check">✓</span>
+    <span class="category-icon">💻</span>
+    <span class="category-name">تكنولوجيا</span>
+  </button>
+  <button class="category-card" data-category="sports">
+    <span class="category-check">✓</span>
+    <span class="category-icon">🏀</span>
+    <span class="category-name">رياضات أخرى</span>
+  </button>
+  <button class="category-card" data-category="religion">
+    <span class="category-check">✓</span>
+    <span class="category-icon">🕌</span>
+    <span class="category-name">دين</span>
+  </button>
+</div>
+<p class="categories-hint" id="categories-hint">
+  اخترت: <b>1</b> قسم — يمكنك اختيار حتى 4
+</p>
+
+    <!-- 📚 الموضوع (اختياري) -->
+    <div class="setting-group">
+      <label class="setting-label">📚 الموضوع (اختياري)</label>
+      <input type="text" id="topic-input" class="name-input"
+             placeholder="مثال: ميسي، أفلام مارفل، مسلسلات مصرية..."
+             maxlength="60">
+      <p class="setting-hint">اتركه فاضي لو عايز الـ AI يختار</p>
+
+      <div class="topic-chips" id="topic-chips">
+        <!-- يتغيّر حسب القسم -->
+      </div>
+    </div>
+
+    <!-- 🎯 الصعوبة -->
+    <div class="setting-group">
+      <label class="setting-label">🎯 الصعوبة</label>
+      <div class="options-row" id="difficulty-options">
+        <button class="option-btn" data-difficulty="سهل">😊 سهل</button>
+        <button class="option-btn active" data-difficulty="متوسط">🔥 متوسط</button>
+        <button class="option-btn" data-difficulty="صعب">💀 صعب</button>
+      </div>
+    </div>
+
+    <!-- 🔢 عدد الأسئلة -->
+    <div class="setting-group">
+      <label class="setting-label">🔢 عدد الأسئلة</label>
+      <div class="options-row" id="count-options">
+        <button class="option-btn active" data-count="5">5</button>
+        <button class="option-btn" data-count="10">10</button>
+        <button class="option-btn" data-count="15">15</button>
+        <button class="option-btn" data-count="20">20</button>
+      </div>
+    </div>
+
+    <!-- ⏱️ مدة السؤال -->
+    <div class="setting-group">
+      <label class="setting-label">⏱️ مدة السؤال</label>
+      <div class="options-row" id="timer-options">
+        <button class="option-btn" data-timer="15">15 ثانية</button>
+        <button class="option-btn active" data-timer="20">20 ثانية</button>
+        <button class="option-btn" data-timer="30">30 ثانية</button>
+        <button class="option-btn" data-timer="0">بدون مؤقت</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="settings-back" class="btn-ghost">رجوع</button>
+      <button id="settings-start">🚀 ابدأ اللعب</button>
+    </div>
+  </section>
+
+  <!-- ═══════════ شاشة الأسماء (لاعب واحد) ═══════════ -->
+  <section id="screen-names-solo" class="screen">
+    <h1>👤 لاعب واحد</h1>
+    <p>اكتب اسمك عشان نبدأ</p>
+    <input type="text" id="solo-name" class="name-input" placeholder="اسمك..." maxlength="20">
+    <div class="actions">
+      <button id="solo-back" class="btn-ghost">رجوع</button>
+      <button id="solo-start">🚀 ابدأ</button>
+    </div>
+  </section>
+
+  <!-- ═══════════ شاشة الأسماء (اتنين) ═══════════ -->
+  <section id="screen-names-duo" class="screen">
+    <h1>👥 اتنين لاعبين</h1>
+    <p>اكتبوا الأسماء عشان نبدأ</p>
+    <input type="text" id="p1-name" class="name-input" placeholder="اسم اللاعب الأول..." maxlength="20">
+    <input type="text" id="p2-name" class="name-input" placeholder="اسم اللاعب التاني..." maxlength="20">
+    <div class="actions">
+      <button id="duo-back" class="btn-ghost">رجوع</button>
+      <button id="duo-start">🚀 ابدأ</button>
+    </div>
+  </section>
+
+  <!-- ═══════════ شاشة تبديل الدور ═══════════ -->
+  <section id="screen-turn" class="screen">
+    <h1>🔄 الدور الجديد</h1>
+    <p id="turn-name" class="turn-name">أحمد</p>
+    <p>جاهز؟ اضغط عشان نبدأ أسئلتك</p>
+    <button id="turn-start">▶️ ابدأ دوري</button>
+  </section>
+
+  <!-- ═══════════ شاشة تسليم الجهاز (versus) ═══════════ -->
+  <section id="screen-handoff" class="screen">
+    <h1>🔄 سلّم الجهاز</h1>
+    <p>السؤال رقم <b id="handoff-q-number">1</b></p>
+    <p class="turn-name" id="handoff-player-name">سارة</p>
+    <p>جاهز؟ اضغط عشان تجاوب</p>
+    <button id="handoff-start">▶️ أنا جاهز</button>
+  </section>
+
+  <!-- ═══════════ شاشة نتيجة السؤال (versus) ═══════════ -->
+  <section id="screen-vs-result" class="screen">
+    <h1>📊 نتيجة السؤال</h1>
+    <p id="vs-question-text" class="vs-question">نص السؤال</p>
+    <div id="vs-results-list" class="vs-results-list"></div>
+    <p id="vs-correct-answer" class="vs-correct">✅ الإجابة الصح: ...</p>
+    <button id="vs-next-btn">➡️ السؤال التالي</button>
+  </section>
+
+  <!-- ═══════════ شاشة الأسئلة ═══════════ -->
+  <section id="screen-quiz" class="screen">
+    <button id="quit-game" class="quit-btn" title="خروج">✕</button>
+
+    <div class="hud">
+      <span>👤 <b id="current-player">-</b></span>
+      <span>🎯 النقاط: <b id="score">0</b></span>
+      <span>📊 <b id="progress">1/5</b></span>
+    </div>
+
+    <div id="timer-bar-wrap">
+      <div id="timer-bar"></div>
+    </div>
+    <div id="timer-text">20</div>
+
+    <h2 id="question-text">جاري التحميل...</h2>
+    <div id="answers"></div>
+    <div id="feedback"></div>
+  </section>
+
+  <!-- ═══════════ شاشة النتيجة ═══════════ -->
+  <section id="screen-end" class="screen">
+    <h1>🏁 النتيجة النهائية</h1>
+    <div id="results"></div>
+
+    <div id="stars-rating" class="stars-rating">
+      <span class="star" id="star-1">⭐</span>
+      <span class="star" id="star-2">⭐</span>
+      <span class="star" id="star-3">⭐</span>
+    </div>
+
+    <p id="final-message"></p>
+
+    <div id="game-stats" class="game-stats">
+      <h2 class="stats-title">📊 تحليل الأداء</h2>
+      <div class="stats-mini-grid">
+        <div class="stat-mini">
+          <div class="stat-mini-value" id="stat-fastest">-</div>
+          <div class="stat-mini-label">⚡ أسرع إجابة</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-value" id="stat-slowest">-</div>
+          <div class="stat-mini-label">🐢 أبطأ إجابة</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-value" id="stat-avg">-</div>
+          <div class="stat-mini-label">⏱️ متوسط الوقت</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-value" id="stat-streak">-</div>
+          <div class="stat-mini-label">🔥 أطول سلسلة</div>
+        </div>
+      </div>
+      <div class="answer-breakdown">
+        <div class="breakdown-item correct-item">
+          <span class="breakdown-icon">✅</span>
+          <span class="breakdown-count" id="bd-correct">0</span>
+          <span class="breakdown-label">صح</span>
+        </div>
+        <div class="breakdown-item wrong-item">
+          <span class="breakdown-icon">❌</span>
+          <span class="breakdown-count" id="bd-wrong">0</span>
+          <span class="breakdown-label">غلط</span>
+        </div>
+        <div class="breakdown-item timeout-item">
+          <span class="breakdown-icon">⏰</span>
+          <span class="breakdown-count" id="bd-timeout">0</span>
+          <span class="breakdown-label">انتهى الوقت</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="share-section" class="share-section">
+      <h2 class="stats-title">📤 شارك نتيجتك</h2>
+      <div class="share-buttons">
+        <button id="share-whatsapp" class="share-btn whatsapp">
+          <span>📱</span> واتساب
+        </button>
+        <button id="share-twitter" class="share-btn twitter">
+          <span>🐦</span> X / تويتر
+        </button>
+        <button id="share-copy" class="share-btn copy">
+          <span>📋</span> نسخ
+        </button>
+      </div>
+      <button id="download-image" class="btn-download">
+        📸 نزّل النتيجة كصورة
+      </button>
+    </div>
+
+    <button id="restart-btn">🔄 العب تاني</button>
+  </section>
+
+  <canvas id="share-canvas" style="display:none;"></canvas>
+
+  <div id="loading" class="loading hidden">
+    <div class="spinner"></div>
+    <p id="loading-text">⏳ جاري التحميل...</p>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

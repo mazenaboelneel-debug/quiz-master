@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏆 المتصدرين | Quiz Master</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="auth-guard.js"></script>
+  <link rel="stylesheet" href="theme.css">
+<script type="module" src="theme.js"></script>
+<link rel="stylesheet" href="theme.css">
+<script type="module" src="theme.js"></script>
+</head>
+<body>
+  <canvas id="particles-canvas"></canvas>
+  <div id="bg-layer"></div>
+  <div id="bg-overlay"></div>
+
+  <section class="screen active">
+    <h1>🏆 المتصدرين</h1>
+    <p>أعلى 10 نتائج في اللعبة</p>
+
+    <div id="leaderboard-list" class="history-list">
+      <p class="empty-state">⏳ جاري التحميل...</p>
+    </div>
+
+    <div class="actions">
+      <a href="settings.html" class="btn-ghost btn-small">⚙️</a>
+      <a href="index.html" class="btn-link">🏠 الرئيسية</a>
+      <a href="profile.html" class="btn-link">👤 بروفايلي</a>
+    </div>
+  </section>
+
+  <script type="module">
+    import { watchAuth, getTopResults } from './auth.js';
+
+    watchAuth(async user => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      await loadLeaderboard();
+    });
+
+    async function loadLeaderboard() {
+      try {
+        const results = await getTopResults(10);
+        const list = document.getElementById('leaderboard-list');
+        if (results.length === 0) {
+          list.innerHTML = '<p class="empty-state">😴 مفيش نتائج لسه</p>';
+          return;
+        }
+        list.innerHTML = '';
+        results.forEach((r, i) => {
+          const div = document.createElement('div');
+          div.className = 'history-item leaderboard-item';
+          const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
+          div.innerHTML = `
+            <div class="history-info">
+              <span class="history-topic">${medal} ${r.playerName || r.userName || 'لاعب'}</span>
+              <span class="history-meta">${r.topic || 'عام'} • ${r.difficulty || 'متوسط'}</span>
+            </div>
+            <div class="history-score">${r.score} / ${r.maxScore}</div>
+          `;
+          list.appendChild(div);
+        });
+      } catch (err) {
+        console.error(err);
+        document.getElementById('leaderboard-list').innerHTML = '<p class="empty-state">⚠️ تعذّر التحميل</p>';
+      }
+    }
+  </script>
+</body>
+</html>

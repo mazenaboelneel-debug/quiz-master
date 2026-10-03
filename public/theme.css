@@ -1,0 +1,61 @@
+/* ═══════════════════════════════════════
+   🎨 تعديلات خاصة بالوضع النهاري
+   ═══════════════════════════════════════ */
+body.light-mode {
+  background: var(--bg);
+}
+
+body.light-mode #bg-overlay {
+  background:
+    radial-gradient(circle at 20% 10%, rgba(0, 179, 255, 0.15), transparent 55%),
+    radial-gradient(circle at 80% 90%, rgba(0, 255, 157, 0.1), transparent 55%),
+    linear-gradient(180deg, rgba(240,244,255,0.4) 0%, rgba(240,244,255,0.9) 100%);
+}
+
+body.light-mode .screen {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+body.light-mode .name-input,
+body.light-mode .answer,
+body.light-mode .mode-btn,
+body.light-mode .option-btn,
+body.light-mode .chip,
+body.light-mode .stat-card,
+body.light-mode .stat-mini,
+body.light-mode .history-item,
+body.light-mode .user-bar,
+body.light-mode .hud {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .name-input:focus {
+  background: rgba(0, 168, 107, 0.06);
+}
+
+body.light-mode #particles-canvas {
+  opacity: 0.4;
+}
+
+body.light-mode #bg-layer {
+  filter: blur(10px) brightness(0.9) saturate(1.2);
+}
+
+body.light-mode #bg-layer.visible {
+  opacity: 0.35;
+}
+
+body.light-mode .mode-desc,
+body.light-mode p {
+  color: var(--muted);
+}
+
+body.light-mode #mouse-glow {
+  mix-blend-mode: multiply;
+  opacity: 0 !important;   /* نخفيه في الوضع النهاري */
+}

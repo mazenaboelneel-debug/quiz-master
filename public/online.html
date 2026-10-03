@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌐 تحدي أونلاين | Quiz Master</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="theme.css">
+  <script type="module" src="theme.js"></script>
+  <script type="module" src="auth-guard.js"></script>
+</head>
+<body>
+
+  <canvas id="particles-canvas"></canvas>
+  <div id="bg-layer"></div>
+  <div id="bg-overlay"></div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ═══════════ شاشة الاختيار ═══════════ -->
+  <section id="screen-online-choice" class="screen active">
+    <h1>🌐 تحدي أونلاين</h1>
+    <p>العب مع صاحبك من أي مكان</p>
+
+    <div class="user-bar">
+      <span>👤 <b id="user-name">-</b></span>
+      <div class="user-actions">
+        <a href="index.html" class="btn-ghost btn-small">🏠 الرئيسية</a>
+        <button id="logout-btn" class="btn-ghost btn-small">خروج</button>
+      </div>
+    </div>
+
+    <div class="mode-buttons">
+      <button class="mode-btn" id="btn-create-room">
+        <span class="mode-icon">🆕</span>
+        <span class="mode-title">إنشاء غرفة</span>
+        <span class="mode-desc">توليد كود تشاركه مع صاحبك</span>
+      </button>
+
+      <button class="mode-btn" id="btn-join-room">
+        <span class="mode-icon">🚪</span>
+        <span class="mode-title">دخول بكود</span>
+        <span class="mode-desc">عندك كود من صاحبك؟</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══════════ شاشة إعدادات إنشاء الغرفة ═══════════ -->
+  <section id="screen-room-settings" class="screen">
+    <h1>⚙️ إعدادات الغرفة</h1>
+    <p>اختار التفاصيل قبل ما تعمل الغرفة</p>
+
+    <!-- 🎯 القسم -->
+<div class="setting-group">
+  <label class="setting-label">🎯 القسم</label>
+  <div class="categories-grid" id="room-categories">
+    <button class="category-card active" data-category="football">
+      <span class="category-icon">⚽</span>
+      <span class="category-name">كرة القدم</span>
+    </button>
+    <button class="category-card" data-category="movies">
+      <span class="category-icon">🎬</span>
+      <span class="category-name">أفلام</span>
+    </button>
+    <button class="category-card" data-category="series">
+      <span class="category-icon">📺</span>
+      <span class="category-name">مسلسلات</span>
+    </button>
+    <button class="category-card" data-category="general">
+      <span class="category-icon">🌍</span>
+      <span class="category-name">معلومات عامة</span>
+    </button>
+    <button class="category-card" data-category="science">
+      <span class="category-icon">🔬</span>
+      <span class="category-name">علوم</span>
+    </button>
+    <button class="category-card" data-category="history">
+      <span class="category-icon">📜</span>
+      <span class="category-name">تاريخ</span>
+    </button>
+    <button class="category-card" data-category="music">
+      <span class="category-icon">🎵</span>
+      <span class="category-name">موسيقى وفن</span>
+    </button>
+    <button class="category-card" data-category="tech">
+      <span class="category-icon">💻</span>
+      <span class="category-name">تكنولوجيا</span>
+    </button>
+    <button class="category-card" data-category="sports">
+      <span class="category-icon">🏀</span>
+      <span class="category-name">رياضات أخرى</span>
+    </button>
+    <button class="category-card" data-category="religion">
+      <span class="category-icon">🕌</span>
+      <span class="category-name">دين</span>
+    </button>
+  </div>
+</div>
+
+<!-- 📚 الموضوع (اختياري) -->
+<div class="setting-group">
+  <label class="setting-label">📚 الموضوع (اختياري)</label>
+  <input type="text" id="room-topic" class="name-input"
+         placeholder="مثال: ميسي، أفلام مارفل، مسلسلات مصرية..."
+         maxlength="60">
+  <p class="setting-hint">اتركه فاضي لو عايز الـ AI يختار</p>
+  <div class="topic-chips" id="room-topic-chips">
+    <!-- يتغيّر حسب القسم -->
+  </div>
+</div>
+
+    <div class="setting-group">
+      <label class="setting-label">🎯 الصعوبة</label>
+      <div class="options-row" id="room-difficulty">
+        <button class="option-btn" data-value="سهل">😊 سهل</button>
+        <button class="option-btn active" data-value="متوسط">🔥 متوسط</button>
+        <button class="option-btn" data-value="صعب">💀 صعب</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <label class="setting-label">🔢 عدد الأسئلة</label>
+      <div class="options-row" id="room-count">
+        <button class="option-btn active" data-value="5">5</button>
+        <button class="option-btn" data-value="10">10</button>
+        <button class="option-btn" data-value="15">15</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <label class="setting-label">⏱️ مدة السؤال</label>
+      <div class="options-row" id="room-timer">
+        <button class="option-btn" data-value="15">15 ث</button>
+        <button class="option-btn active" data-value="20">20 ث</button>
+        <button class="option-btn" data-value="30">30 ث</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+  <label class="setting-label">👥 عدد اللاعبين</label>
+  <div class="options-row" id="room-players">
+    <button class="option-btn" data-value="2">2 لاعبين</button>
+    <button class="option-btn active" data-value="3">3 لاعبين</button>
+    <button class="option-btn" data-value="4">4 لاعبين</button>
+  </div>
+</div>
+
+    <div class="actions">
+      <button id="room-settings-back" class="btn-ghost">رجوع</button>
+      <button id="room-settings-create">🎮 إنشاء الغرفة</button>
+    </div>
+  </section>
+
+  <!-- ═══════════ شاشة دخول بكود ═══════════ -->
+  <section id="screen-join" class="screen">
+    <h1>🚪 دخول بكود</h1>
+    <p>اكتب الكود اللي صاحبك بعتهولك</p>
+
+    <input type="text" id="room-code-input" class="name-input room-code-input"
+           placeholder="ABCD" maxlength="6" autocomplete="off"
+           style="text-transform: uppercase; font-size: 32px; letter-spacing: 12px; text-align: center;">
+
+    <div id="join-error" class="error-msg"></div>
+
+    <div class="actions">
+      <button id="join-back" class="btn-ghost">رجوع</button>
+      <button id="join-submit">▶️ دخول</button>
+    </div>
+  </section>
+
+  <!-- ═══════════ شاشة غرفة الانتظار ═══════════ -->
+  <section id="screen-lobby" class="screen">
+    <h1>🎮 غرفة الانتظار</h1>
+    <p class="lobby-code-label">كود الغرفة</p>
+    <div class="room-code-display">
+      <span id="lobby-code">-</span>
+      <button id="copy-code" class="copy-btn" title="نسخ الكود">📋</button>
+    </div>
+    <p class="lobby-hint">شارك الكود مع صاحبك</p>
+
+    <div class="lobby-players" id="lobby-players">
+      <!-- يتولّد ديناميكياً -->
+    </div>
+
+    <div class="lobby-status" id="lobby-status">
+      ⏳ في انتظار اللاعب التاني...
+    </div>
+
+    <div class="actions">
+      <button id="lobby-leave" class="btn-ghost">🚪 خروج من الغرفة</button>
+      <button id="lobby-ready" class="btn-ready" disabled>✅ جاهز</button>
+    </div>
+  </section>
+
+  <!-- ═══════════ شاشة التحميل ═══════════ -->
+  <div id="loading" class="loading hidden">
+    <div class="spinner"></div>
+    <p id="loading-text">⏳ جاري التحميل...</p>
+  </div>
+
+  <script type="module" src="online.js"></script>
+</body>
+</html>

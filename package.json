@@ -1,0 +1,20 @@
+{
+  "name": "football-quiz",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "AI-powered football quiz with high-end graphics",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google/genai": "^2.24.0",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
